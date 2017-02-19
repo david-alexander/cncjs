@@ -11,6 +11,20 @@ import taskRunner from '../taskrunner';
 import { GrblController, SmoothieController, TinyGController } from '../../controllers';
 import { IP_WHITELIST } from '../../constants';
 
+const mdns = require('mdns');
+const mdnsBrowser = mdns.createBrowser(mdns.tcp('vertigocnc2'));
+
+var mdnsServices = {};
+
+mdnsBrowser.on('serviceUp', function(service) {
+	console.log(service);
+	mdnsServices[service.name] = service.host.substring(0, service.host.length - 1);
+});
+mdnsBrowser.on('serviceDown', function(service) {
+	delete mdnsServices[service.name];
+});
+mdnsBrowser.start();
+
 const PREFIX = '[cncengine]';
 
 class CNCServer {
@@ -105,6 +119,14 @@ class CNCServer {
                     }
 
                     ports = ports.concat(_.get(settings, 'cnc.ports') || []);
+
+		    for (var instanceName in mdnsServices)
+		    {
+			var hostname = mdnsServices[instanceName];
+			ports.push({
+				comName: hostname
+			});
+		    }
 
                     const portsInUse = _(this.controllers)
                         .filter((controller) => {

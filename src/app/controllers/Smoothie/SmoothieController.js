@@ -15,12 +15,53 @@ import {
     SMOOTHIE_ACTIVE_STATE_HOLD,
     SMOOTHIE_REALTIME_COMMANDS
 } from './constants';
+const WebSocket = require('ws');
+const EventEmitter = require('events');
 
 const noop = _.noop;
 
 const dbg = (...args) => {
     log.raw.apply(log, ['silly'].concat(args));
 };
+
+class SerialPortWS extends EventEmitter
+{
+	constructor(port, options)
+	{
+		super();
+		
+		this.port = port;
+		this.options = options;
+		
+		this.parser = options.parser;
+		
+		this.socket = null;
+	}
+	
+	open(cb) {
+		this.socket = new WebSocket('ws://' + this.port);
+	
+		this.socket.on('open', () => {
+			cb(null);
+		});
+	
+		this.socket.on('close', () => {
+		
+		});
+	
+		this.socket.on('message', (data, flags) => {
+			this.parser(this, data);
+		});
+	}
+	
+	write(data) {
+		this.socket.send(data);
+	}
+	
+	isOpen() {
+		return this.socket != null;
+	}
+}
 
 class Connection {
     socket = null;
@@ -168,7 +209,7 @@ class SmoothieController {
 
         this.smoothie.on('ok', (res) => {
             if (this.queryResponse.parserstateEnd) {
-                this.connections.forEach((c) => {
+                this.this.forEach((c) => {
                     if (c.sentCommand.indexOf('$G') === 0) {
                         c.sentCommand = '';
                         c.socket.emit('serialport:read', res.raw);
@@ -239,7 +280,7 @@ class SmoothieController {
         });
 
         // SerialPort
-        this.serialport = new SerialPort(this.options.port, {
+        this.serialport = new SerialPortWS(this.options.port, {
             autoOpen: false,
             baudrate: this.options.baudrate,
             parser: SerialPort.parsers.readline('\n')
