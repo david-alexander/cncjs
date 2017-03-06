@@ -21,7 +21,7 @@ environment:
       secure: a+2xo1z15zej505BjOcL6iIaGEbVgJd4usmxpKZWUP4sI2tLvQdBLMOXdxr/KGzVBtMYKDHJcl3Xpv+iOUXeRjd4iplIZkkSaCUkE9mbccs=
     CSC_KEY_PASSWORD:
       secure: vysRX38PjZMwcrzs07Kn7w==
-    BONJOUR_SDK_HOME: "C:\\Projects\\cncjs\\Bonjour SDK"
+    BONJOUR_SDK_HOME: "C:\\projects\\cncjs\\Bonjour SDK\\Bonjour SDK"
 
 matrix:
   fast_finish: true
@@ -45,7 +45,6 @@ install:
       Write-Host $env:APPVEYOR_REPO_COMMIT_TIMESTAMP -ForegroundColor "Green"
   - ps: Expand-Archive "Bonjour SDK.zip"
   - echo %BONJOUR_SDK_HOME%
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install -g npm
   - npm --version
