@@ -21,7 +21,7 @@ environment:
       secure: a+2xo1z15zej505BjOcL6iIaGEbVgJd4usmxpKZWUP4sI2tLvQdBLMOXdxr/KGzVBtMYKDHJcl3Xpv+iOUXeRjd4iplIZkkSaCUkE9mbccs=
     CSC_KEY_PASSWORD:
       secure: vysRX38PjZMwcrzs07Kn7w==
-    BONJOUR_SDK_HOME: "C:\\Program Files\\Bonjour SDK"
+    BONJOUR_SDK_HOME: "C:\\Projects\\cncjs\\Bonjour SDK"
 
 matrix:
   fast_finish: true
@@ -43,9 +43,8 @@ install:
       Write-Host $env:APPVEYOR_REPO_COMMIT -ForegroundColor "Green"
       Write-Host "Commit timestamp: " -NoNewLine
       Write-Host $env:APPVEYOR_REPO_COMMIT_TIMESTAMP -ForegroundColor "Green"
-  - start /wait bonjoursdksetup.exe /passive
+  - ps: Expand-Archive "Bonjour SDK.zip"
   - echo %BONJOUR_SDK_HOME%
-  - dir "C:\Program Files"
   - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install -g npm
   - npm --version
