@@ -45,6 +45,7 @@ install:
       Write-Host $env:APPVEYOR_REPO_COMMIT_TIMESTAMP -ForegroundColor "Green"
   - ps: Expand-Archive "Bonjour SDK.zip"
   - echo %BONJOUR_SDK_HOME%
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
   - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install -g npm
   - npm --version
