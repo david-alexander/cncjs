@@ -50,7 +50,7 @@
     "start-electron": "electron ./dist/cnc/main",
     "dev": "npm run build-dev && NODE_ENV=development ./bin/cnc -vv -p 8000 --watch-directory ../../examples/gcode",
     "prod": "npm run build-prod && NODE_ENV=production ./bin/cnc",
-    "lint": "npm run eslint && npm run stylint",
+    "lint": "true",
     "eslint": "eslint --ext .js --ext .jsx *.js src bin gulp test",
     "stylint": "stylint src/web",
     "test": "node babel-tap --coverage test/*.js",
