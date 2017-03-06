@@ -44,6 +44,8 @@ install:
       Write-Host "Commit timestamp: " -NoNewLine
       Write-Host $env:APPVEYOR_REPO_COMMIT_TIMESTAMP -ForegroundColor "Green"
   - ps: Install-Product node $env:nodejs_version $env:platform
+  - echo %BONJOUR_SDK_HOME%
+  - dir C:\\Program Files
   - npm install -g npm
   - npm --version
   - npm install
