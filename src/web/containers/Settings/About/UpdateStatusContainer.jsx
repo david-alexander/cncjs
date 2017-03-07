@@ -34,7 +34,7 @@ const UpdateStatusContainer = (props) => {
                 </div>
                 <div className={styles.updateStatusMessageContainer}>
                     <div className={styles.updateStatusMessage}>
-                        {i18n._('A new version of {{name}} is available', { name: 'cnc' })}
+                        {i18n._('A new version of {{name}} is available', { name: settings.name })}
                     </div>
                     <div className={styles.releaseLatest}>
                         {i18n._('Version {{version}}', { version: latest })}
@@ -44,7 +44,7 @@ const UpdateStatusContainer = (props) => {
                 </div>
                 <div className={styles.updateStatusActionContainer}>
                     <Anchor
-                        href="https://github.com/cncjs/cncjs/releases/latest"
+                        href="https://github.com/cncjs/cncjs/releases"
                         target="_blank"
                     >
                         <span className={styles.label}>
