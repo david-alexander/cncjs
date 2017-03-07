@@ -97,3 +97,5 @@ deploy:
   skip_cleanup: true
   region: ap-southeast-2
   local_dir: releases
+  on:
+    branch: "feature/network-service-discovery"
