@@ -411,12 +411,13 @@ class SmoothieController {
             { pauseAfter: 500 },
 
             // Check if it is Smoothieware
-            { cmd: 'version', pauseAfter: 50 }
+            { cmd: 'version', pauseAfter: 2000 }
         ];
 
         const sendInitCommands = (i = 0) => {
             if (i >= cmds.length) {
                 this.ready = true;
+                this.serialport.write("get status\n");
                 return;
             }
             const { cmd = '', pauseAfter = 0 } = { ...cmds[i] };
