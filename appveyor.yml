@@ -72,13 +72,6 @@ build_script:
         Copy-Item "output\${PACKAGE_NAME} Setup ${PACKAGE_VERSION}.exe" "releases\${env:RELEASE}-win-x64.exe"
         Get-ChildItem releases
       }
-  - ps: |
-      if ($env:nodejs_version -eq '6' -And $env:platform -eq 'x64') {
-        npm run build:win-ia32
-        Get-ChildItem output
-        Copy-Item "output\${PACKAGE_NAME} Setup ${PACKAGE_VERSION}.exe" "releases\${env:RELEASE}-win-ia32.exe"
-        Get-ChildItem releases
-      }
 
 test: off
 
