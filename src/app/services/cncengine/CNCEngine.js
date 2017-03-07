@@ -117,15 +117,13 @@ class CNCEngine {
 
                     ports = ports.concat(_.get(settings, 'cnc.ports') || []);
 
-                    const portsInUse = _(this.controllers)
-
-		    for (var instanceName in mdnsServices)
-		    {
-			var hostname = mdnsServices[instanceName];
-			ports.push({
-				comName: hostname
-			});
-		    }
+                    for (var instanceName in mdnsServices)
+                    {
+                        var hostname = mdnsServices[instanceName];
+                        ports.push({
+                            comName: hostname
+                        });
+                    }
                     const controllers = store.get('controllers', {});
                     const portsInUse = _(controllers)
                         .filter((controller) => {
