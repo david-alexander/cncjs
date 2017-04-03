@@ -55,6 +55,10 @@ class SerialPortWS extends EventEmitter
 		this.socket.on('message', (data, flags) => {
 			this.parser(this, data);
 		});
+
+        this.socket.on('error', function(err) {
+            cb(err);
+        });
 	}
 	
 	write(data) {
@@ -64,6 +68,14 @@ class SerialPortWS extends EventEmitter
 	isOpen() {
 		return this.socket != null;
 	}
+
+    close() {
+        if (this.socket != null)
+        {
+            this.socket.close();
+            this.socket = null;
+        }
+    }
 }
 
 class Connection {

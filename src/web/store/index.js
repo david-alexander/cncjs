@@ -60,11 +60,11 @@ export const defaultState = {
         connection: {
             minimized: false,
             controller: {
-                type: 'Grbl' // Grbl|Smoothie|TinyG
+                type: 'Smoothie' // Grbl|Smoothie|TinyG
             },
             port: '',
             baudrate: 115200,
-            autoReconnect: true
+            autoReconnect: false
         },
         console: {
             minimized: false
