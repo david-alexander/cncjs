@@ -115,6 +115,8 @@ class CNCEngine {
                         return;
                     }
 
+                    ports = [];
+
                     ports = ports.concat(_.get(settings, 'cnc.ports') || []);
 
                     for (var instanceName in mdnsServices)

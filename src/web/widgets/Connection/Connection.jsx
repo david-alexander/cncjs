@@ -29,7 +29,7 @@ class Connection extends React.Component {
         controllerType: store.get('widgets.connection.controller.type'),
         port: controller.port,
         baudrate: store.get('widgets.connection.baudrate'),
-        autoReconnect: store.get('widgets.connection.autoReconnect'),
+        autoReconnect: false,
         hasReconnected: false,
         alertMessage: ''
     };
@@ -48,17 +48,6 @@ class Connection extends React.Component {
                     port: port,
                     ports: ports
                 });
-
-                const { autoReconnect, hasReconnected } = this.state;
-
-                if (autoReconnect && !hasReconnected) {
-                    const { baudrate } = this.state;
-
-                    this.setState({ hasReconnected: true });
-                    this.openPort(port, {
-                        baudrate: baudrate
-                    });
-                }
             } else {
                 this.setState({ ports: ports });
             }
@@ -356,7 +345,7 @@ class Connection extends React.Component {
                     {alertMessage}
                 </Notifications>
                 }
-                <div className="form-group" style={{display: "none"}}>
+                <div className="form-group" style={{ display: 'none' }}>
                     <div className="input-group input-group-sm">
                         <div className="input-group-btn">
                             <button
@@ -405,7 +394,7 @@ class Connection extends React.Component {
                     </div>
                 </div>
                 <div className="form-group">
-                    <label className="control-label">{i18n._('Port')}</label>
+                    <label className="control-label">{i18n._('Choose Machine')}</label>
                     <div className="input-group input-group-sm">
                         <Select
                             backspaceRemoves={false}
@@ -447,7 +436,7 @@ class Connection extends React.Component {
                         </div>
                     </div>
                 </div>
-                <div className="form-group" style={{display: "none"}}>
+                <div className="form-group" style={{ display: 'none' }}>
                     <label className="control-label">{i18n._('Baud rate')}</label>
                     <Select
                         backspaceRemoves={false}
@@ -466,7 +455,7 @@ class Connection extends React.Component {
                         valueRenderer={::this.renderBaudrateValue}
                     />
                 </div>
-                <div className="checkbox" style={{display: "none"}}>
+                <div className="checkbox" style={{ display: 'none' }}>
                     <label>
                         <input type="checkbox" defaultChecked={autoReconnect} onChange={::this.handleAutoReconnect} />
                         {i18n._('Connect automatically')}
