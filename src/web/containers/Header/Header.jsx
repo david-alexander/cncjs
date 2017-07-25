@@ -33,7 +33,7 @@ class Header extends Component {
     };
 
     state = {
-        pushPermission: false//Push.Permission.get(),
+        pushPermission: false,//Push.Permission.get(),
         commands: [],
         runningTasks: [],
         currentVersion: settings.version,
