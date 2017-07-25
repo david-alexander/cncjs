@@ -3,7 +3,7 @@ import React, { Component, PropTypes } from 'react';
 import { Nav, Navbar, NavDropdown, MenuItem, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import semver from 'semver';
 import without from 'lodash/without';
-import Push from 'push.js';
+//import Push from 'push.js';
 import api from '../../api';
 import Anchor from '../../components/Anchor';
 import settings from '../../config/settings';
@@ -33,7 +33,7 @@ class Header extends Component {
     };
 
     state = {
-        pushPermission: Push.Permission.get(),
+        pushPermission: false//Push.Permission.get(),
         commands: [],
         runningTasks: [],
         currentVersion: settings.version,
@@ -41,6 +41,7 @@ class Header extends Component {
     };
     actions = {
         requestPushPermission: () => {
+            /*
             const onGranted = () => {
                 this.setState({ pushPermission: Push.Permission.GRANTED });
             };
@@ -52,6 +53,7 @@ class Header extends Component {
             if (permission === Push.Permission.DEFAULT) {
                 this.setState({ pushPermission: Push.Permission.DEFAULT });
             }
+            */
         },
         checkForUpdates: async () => {
             try {
@@ -121,6 +123,7 @@ class Header extends Component {
                 runningTasks: without(this.state.runningTasks, taskId)
             });
 
+            /*
             if (cmd && this.state.pushPermission === Push.Permission.GRANTED) {
                 Push.create(cmd.title, {
                     body: code === 0
@@ -134,6 +137,7 @@ class Header extends Component {
                     }
                 });
             }
+            */
         },
         'task:error': (taskId, err) => {
             let cmd = null;
@@ -153,6 +157,7 @@ class Header extends Component {
                 runningTasks: without(this.state.runningTasks, taskId)
             });
 
+            /*
             if (cmd && this.state.pushPermission === Push.Permission.GRANTED) {
                 Push.create(cmd.title, {
                     body: i18n._('Command failed ({{err}})', { err: err }),
@@ -164,6 +169,7 @@ class Header extends Component {
                     }
                 });
             }
+            */
         },
         'config:change': () => {
             this.actions.getCommands();
@@ -326,17 +332,17 @@ class Header extends Component {
                             {showCommands &&
                             <MenuItem header>
                                 {i18n._('Command')}
-                                {pushPermission === Push.Permission.GRANTED &&
+                                {/*pushPermission === Push.Permission.GRANTED*/false &&
                                 <span className="pull-right">
                                     <i className="fa fa-fw fa-bell-o" />
                                 </span>
                                 }
-                                {pushPermission === Push.Permission.DENIED &&
+                                {/*pushPermission === Push.Permission.GRANTED*/false &&
                                 <span className="pull-right">
                                     <i className="fa fa-fw fa-bell-slash-o" />
                                 </span>
                                 }
-                                {pushPermission === Push.Permission.DEFAULT &&
+                                {/*pushPermission === Push.Permission.GRANTED*/false &&
                                 <span className="pull-right">
                                     <Anchor
                                         className={styles.btnIcon}
