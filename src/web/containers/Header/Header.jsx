@@ -33,7 +33,7 @@ class Header extends Component {
     };
 
     state = {
-        pushPermission: false,//Push.Permission.get(),
+        pushPermission: false,
         commands: [],
         runningTasks: [],
         currentVersion: settings.version,
@@ -106,14 +106,14 @@ class Header extends Component {
         },
         'task:finish': (taskId, code) => {
             const err = (code !== 0) ? new Error(`errno=${code}`) : null;
-            let cmd = null;
+            //let cmd = null;
 
             this.setState({
                 commands: this.state.commands.map(c => {
                     if (c.taskId !== taskId) {
                         return c;
                     }
-                    cmd = c;
+                    //cmd = c;
                     return {
                         ...c,
                         taskId: null,
@@ -140,14 +140,14 @@ class Header extends Component {
             */
         },
         'task:error': (taskId, err) => {
-            let cmd = null;
+            //let cmd = null;
 
             this.setState({
                 commands: this.state.commands.map(c => {
                     if (c.taskId !== taskId) {
                         return c;
                     }
-                    cmd = c;
+                    //cmd = c;
                     return {
                         ...c,
                         taskId: null,
@@ -211,7 +211,7 @@ class Header extends Component {
     }
     render() {
         const { path } = this.props;
-        const { pushPermission, commands, runningTasks, currentVersion, latestVersion } = this.state;
+        const { commands, runningTasks, currentVersion, latestVersion } = this.state;
         const newUpdateAvailable = semver.lt(currentVersion, latestVersion);
         const tooltip = newUpdateAvailable ? newUpdateAvailableTooltip() : <div />;
         const sessionEnabled = store.get('session.enabled');
