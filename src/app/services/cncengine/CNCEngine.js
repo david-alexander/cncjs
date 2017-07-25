@@ -115,15 +115,13 @@ class CNCEngine {
                         return;
                     }
 
-                    ports = [];
-
                     ports = ports.concat(_.get(settings, 'cnc.ports') || []);
 
                     for (var instanceName in mdnsServices)
                     {
                         var hostname = mdnsServices[instanceName];
                         ports.push({
-                            comName: hostname
+                            hostname: hostname
                         });
                     }
                     const controllers = store.get('controllers', {});
@@ -138,11 +136,13 @@ class CNCEngine {
 
                     ports = _.map(ports, (port) => {
                         return {
-                            port: port.comName,
-                            manufacturer: port.manufacturer,
+                            port: port.comName || port.hostname,
+                            connectionType: port.hostname ? 'websocket' : 'serial',
+                            manufacturer: port.manufacturer || 'Vertigo Technologies',
                             inuse: _.includes(portsInUse, port.comName)
                         };
                     });
+                    console.log('PORTS2', ports);
 
                     socket.emit('serialport:list', ports);
                 });
@@ -154,13 +154,13 @@ class CNCEngine {
 
                 let controller = store.get(`controllers["${port}"]`);
                 if (!controller) {
-                    const { controllerType = 'Grbl', baudrate } = { ...options };
+                    const { controllerType = 'Grbl', baudrate, connectionType } = { ...options };
 
-                    if (controllerType === 'Grbl') {
+                    if (controllerType === 'Grbl' && connectionType == 'serial') {
                         controller = new GrblController(port, { baudrate });
                     } else if (controllerType === 'Smoothie') {
-                        controller = new SmoothieController(port, { baudrate });
-                    } else if (controllerType === 'TinyG' || controllerType === 'TinyG2') {
+                        controller = new SmoothieController(port, { baudrate, connectionType });
+                    } else if ((controllerType === 'TinyG' || controllerType === 'TinyG2')  && connectionType == 'serial') {
                         controller = new TinyGController(port, { baudrate });
                     } else {
                         throw new Error('Not supported controller: ' + controllerType);

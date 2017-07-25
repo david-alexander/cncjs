@@ -96,7 +96,8 @@ class SmoothieController {
     // SerialPort
     options = {
         port: '',
-        baudrate: 115200
+        baudrate: 115200,
+        connectionType: 'serial'
     };
     serialport = null;
 
@@ -132,12 +133,13 @@ class SmoothieController {
     workflow = null;
 
     constructor(port, options) {
-        const { baudrate } = { ...options };
+        const { baudrate, connectionType } = { ...options };
 
         this.options = {
             ...this.options,
             port: port,
-            baudrate: baudrate
+            baudrate: baudrate,
+            connectionType: connectionType
         };
 
         // Event Trigger
@@ -301,12 +303,27 @@ class SmoothieController {
         });
 
         // SerialPort
-        this.serialport = new SerialPortWS(this.options.port, {
-            autoOpen: false,
-            baudrate: this.options.baudrate,
-            parser: SerialPort.parsers.readline('\n')
-        });
-
+        if (this.options.connectionType == 'serial')
+        {
+            this.serialport = new SerialPort(this.options.port, {
+                autoOpen: false,
+                baudrate: this.options.baudrate,
+                parser: SerialPort.parsers.readline('\n')
+            });
+        }
+        else if (this.options.connectionType == 'websocket')
+        {
+        
+            this.serialport = new SerialPortWS(this.options.port, {
+                autoOpen: false,
+                baudrate: this.options.baudrate,
+                parser: SerialPort.parsers.readline('\n')
+            });
+        }
+        else
+        {
+            log.error(`[Smoothie] Unknown connection type: ${this.options.connectionType}.`);
+        }
         this.serialport.on('data', (data) => {
             this.smoothie.parse('' + data);
             dbg(`[Smoothie] < ${data}`);
@@ -423,13 +440,12 @@ class SmoothieController {
             { pauseAfter: 500 },
 
             // Check if it is Smoothieware
-            { cmd: 'version', pauseAfter: 2000 }
+            { cmd: 'version', pauseAfter: 50 }
         ];
 
         const sendInitCommands = (i = 0) => {
             if (i >= cmds.length) {
                 this.ready = true;
-                this.serialport.write("get status\n");
                 return;
             }
             const { cmd = '', pauseAfter = 0 } = { ...cmds[i] };

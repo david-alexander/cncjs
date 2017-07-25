@@ -183,7 +183,13 @@ class Connection extends React.Component {
         this.startLoading();
     }
     openPort(port, options) {
-        const { baudrate } = { ...options };
+        const portObj = this.state.ports.filter((p) => p.port === port)[0];
+
+        if (portObj) {
+            options.connectionType = portObj.connectionType;
+        }
+
+        const { baudrate, connectionType } = { ...options };
 
         this.setState({
             connecting: true
@@ -191,7 +197,8 @@ class Connection extends React.Component {
 
         controller.openPort(port, {
             controllerType: this.state.controllerType,
-            baudrate: baudrate
+            baudrate: baudrate,
+            connectionType: connectionType
         });
 
         let workflowState = '';
@@ -345,7 +352,7 @@ class Connection extends React.Component {
                     {alertMessage}
                 </Notifications>
                 }
-                <div className="form-group" style={{ display: 'none' }}>
+                <div className="form-group">
                     <div className="input-group input-group-sm">
                         <div className="input-group-btn">
                             <button
@@ -409,9 +416,10 @@ class Connection extends React.Component {
                                 value: o.port,
                                 label: o.port,
                                 manufacturer: o.manufacturer,
-                                inuse: o.inuse
+                                inuse: o.inuse,
+                                connectionType: o.connectionType
                             }))}
-                            placeholder={i18n._('Choose a port')}
+                            placeholder={i18n._('Choose Machine')}
                             searchable={false}
                             value={port}
                             valueRenderer={::this.renderPortValue}
