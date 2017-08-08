@@ -26,7 +26,7 @@ class Connection extends React.Component {
             4800,
             2400
         ],
-        controllerType: store.get('widgets.connection.controller.type'),
+        controllerType: 'Smoothie',
         port: controller.port,
         baudrate: store.get('widgets.connection.baudrate'),
         autoReconnect: false,
@@ -352,7 +352,7 @@ class Connection extends React.Component {
                     {alertMessage}
                 </Notifications>
                 }
-                <div className="form-group">
+                <div className="form-group" style={{ display: 'none' }}>
                     <div className="input-group input-group-sm">
                         <div className="input-group-btn">
                             <button

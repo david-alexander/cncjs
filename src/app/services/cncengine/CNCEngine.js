@@ -12,7 +12,7 @@ import { GrblController, SmoothieController, TinyGController } from '../../contr
 import { IP_WHITELIST } from '../../constants';
 
 const mdns = require('mdns');
-const mdnsBrowser = mdns.createBrowser(mdns.tcp('vertigocnc2'));
+const mdnsBrowser = mdns.createBrowser(mdns.tcp('vertigocnc'));
 
 var mdnsServices = {};
 
@@ -142,7 +142,6 @@ class CNCEngine {
                             inuse: _.includes(portsInUse, port.comName)
                         };
                     });
-                    console.log('PORTS2', ports);
 
                     socket.emit('serialport:list', ports);
                 });
