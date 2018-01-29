@@ -39,41 +39,103 @@ class SerialPortWS extends EventEmitter
 		this.parser = options.parser;
 		
 		this.socket = null;
+
+        this.sendQueue = [];
+        this._isOpen = false;
 	}
 	
 	open(cb) {
 		this.socket = new WebSocket('ws://' + this.port);
 	
 		this.socket.on('open', () => {
+            this._isOpen = true;
+            this._flushSendQueue();
 			cb(null);
+            cb = null;
 		});
 	
 		this.socket.on('close', () => {
-		
+            this._isOpen = false;
+            this._cleanup();
+            this._reopen();
 		});
 	
 		this.socket.on('message', (data, flags) => {
+            console.log("<<< ", data);
 			this.parser(this, data);
 		});
 
         this.socket.on('error', function(err) {
-            cb(err);
+            if (cb != null)
+            {
+                cb(err);
+            }
+            else
+            {
+                this._reopen();
+            }
         });
 	}
 	
 	write(data) {
-		this.socket.send(data);
+        this.sendQueue.push(data);
+        this._flushSendQueue();
 	}
 	
 	isOpen() {
-		return this.socket != null;
+		return this._isOpen;
 	}
 
     close() {
         if (this.socket != null)
         {
-            this.socket.close();
+            var socket = this.socket;
             this.socket = null;
+            socket.close();
+        }
+    }
+
+    _reopen()
+    {
+        if (this.socket != null)
+        {
+            console.log("ATTEMPTING REOPEN...");
+            this.socket = null;
+            this.open((err) => {
+                if (err != null)
+                {
+                    this._reopen();
+                }
+                else
+                {
+                    console.log("REOPENED!");
+                    this.emit('reconnected', {});
+                }
+            });
+        }
+    }
+
+    _flushSendQueue()
+    {
+        if (this._isOpen)
+        {
+            var sendQueue = this.sendQueue;
+            this.sendQueue = [];
+            for (var data of sendQueue)
+            {
+                console.log(">>> ", data);
+                this.socket.send(data);
+            }
+        }
+    }
+
+    _cleanup()
+    {
+        if (this.socket)
+        {
+            this.socket.removeAllListeners('open');
+            this.socket.removeAllListeners('close');
+            this.socket.removeAllListeners('error');
         }
     }
 }
@@ -345,6 +407,11 @@ class SmoothieController {
             }
         });
 
+        this.serialport.on('reconnected', () => {
+            this.clearActionMask();
+            this.sender.retryFromLastReceived();
+        });
+
         const queryStatusReport = () => {
             if (this.actionMask.queryStatusReport) {
                 return;
@@ -355,6 +422,7 @@ class SmoothieController {
         };
 
         const queryParserState = _.throttle(() => {
+            /*
             if (this.actionMask.queryParserState.state || this.actionMask.queryParserState.reply) {
                 return;
             }
@@ -362,7 +430,8 @@ class SmoothieController {
             this.actionMask.queryParserState.state = true;
             this.actionMask.queryParserState.reply = false;
             this.serialport.write('$G\n');
-        }, 500);
+            */
+        }, 250);
 
         this.queryTimer = setInterval(() => {
             if (this.isClose()) {

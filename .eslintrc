@@ -11,5 +11,8 @@
                 "config": "../webpack.config.base.js"
             }
         }
+    },
+    "rules": {
+        "linebreak-style": 0
     }
 }

@@ -115,6 +115,7 @@ class Sender extends events.EventEmitter {
         name: '',
         gcode: '',
         lines: [],
+        lineNumbers: {},
         total: 0,
         sent: 0,
         received: 0,
@@ -122,8 +123,32 @@ class Sender extends events.EventEmitter {
         finishTime: 0,
         elapsedTime: 0,
         remainingTime: 0,
-        changed: false
+        changed: false,
+        nextLineNumber: 1,
+        playID: ""
     };
+
+    _appendPlayIDAndLineNumber(line, lineNumber)
+    {
+        let result = line;
+
+        if (lineNumber > 0 && this.state.playID != "")
+        {
+           result += ` @${this.state.playID} #${lineNumber}`;
+        }
+
+        return result + '\n';
+    }
+
+    _clearPlayID()
+    {
+        this.state.playID = "";
+    }
+
+    _generateNewPlayID()
+    {
+        this.state.playID = `${Math.floor(Math.random() * 4294967295)}`;
+    }
 
     // @param {number} [type] Streaming protocol type. 0 for send-response, 1 for character-counting.
     // @param {object} [options] The options object.
@@ -151,17 +176,25 @@ class Sender extends events.EventEmitter {
                     this.state.sent++;
                     this.emit('change');
 
+                    /*
                     if (sp.line.length === 0) {
                         this.ack(); // ack empty line
 
                         // continue to the next line if empty
                         continue;
                     }
+                    */
 
-                    const line = sp.line + '\n';
+                    const lineNumber = this.state.lineNumbers[this.state.sent-1] || this.state.nextLineNumber;
+                    this.state.lineNumbers[this.state.sent-1] = lineNumber;
+                    this.state.nextLineNumber = lineNumber + 1;
+
+                    const line = this._appendPlayIDAndLineNumber(sp.line, lineNumber);
+
                     sp.line = '';
                     sp.dataLength += line.length;
                     sp.queue.push(line.length);
+                    console.log("SENDER SENT ", line);
                     this.emit('data', line);
                 }
             });
@@ -184,7 +217,11 @@ class Sender extends events.EventEmitter {
                         continue;
                     }
 
-                    this.emit('data', line + '\n');
+                    const lineNumber = this.state.lineNumbers[this.state.sent-1] || this.state.nextLineNumber;
+                    this.state.lineNumbers[this.state.sent-1] = lineNumber;
+                    this.state.nextLineNumber = lineNumber + 1;
+
+                    this.emit('data', this._appendPlayIDAndLineNumber(line, lineNumber));
                     break;
                 }
             });
@@ -220,7 +257,8 @@ class Sender extends events.EventEmitter {
         this.state.name = name;
         this.state.gcode = gcode;
         this.state.lines = gcode.split('\n')
-            .filter(line => (line.trim().length > 0));
+            .filter(line => (line.trim().length > 0))
+            .filter(line => stripComments(line).trim().length > 0);
         this.state.total = this.state.lines.length;
         this.state.sent = 0;
         this.state.received = 0;
@@ -228,6 +266,8 @@ class Sender extends events.EventEmitter {
         this.state.finishTime = 0;
         this.state.elapsedTime = 0;
         this.state.remainingTime = 0;
+        
+        this._generateNewPlayID();
 
         this.emit('load', { name: name, gcode: gcode });
         this.emit('change');
@@ -249,6 +289,8 @@ class Sender extends events.EventEmitter {
         this.state.elapsedTime = 0;
         this.state.remainingTime = 0;
 
+        this._clearPlayID();
+
         this.emit('unload');
         this.emit('change');
     }
@@ -261,6 +303,8 @@ class Sender extends events.EventEmitter {
 
         this.state.received++;
         this.emit('change');
+        
+        console.log(`SENDER ack() - sent = ${this.state.sent}, received = ${this.state.received}`);
 
         return true;
     }
@@ -284,6 +328,7 @@ class Sender extends events.EventEmitter {
 
         if (this.sp) {
             this.sp.process();
+            console.error(`SENDER next() - sent = ${this.state.sent}, received = ${this.state.received}`);
         }
 
         // Elapsed Time
@@ -315,6 +360,7 @@ class Sender extends events.EventEmitter {
         }
         this.state.sent = 0;
         this.state.received = 0;
+        this._generateNewPlayID();
         this.emit('change');
 
         return true;
@@ -325,6 +371,12 @@ class Sender extends events.EventEmitter {
         const changed = this.state.changed;
         this.state.changed = false;
         return changed;
+    }
+    retryFromLastReceived() {
+        this.sp.reset();
+        this.state.sent = this.state.received;
+        this.emit('change');
+        this.next();
     }
 }
 
